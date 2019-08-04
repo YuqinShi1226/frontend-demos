@@ -1,6 +1,10 @@
 # Frontend demos
 
 ### Dungeoned Game
-*2019-08-04*
-A classic rgb game. 
+A classic rgb game.
 
+### Interview questions
+- 0804
+  - this
+  - scope chain
+  - oop
