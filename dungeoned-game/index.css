@@ -4,6 +4,13 @@ body {
 }
 
 canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
 	width: 500px;
 	height: 300px;
+}
+
+#background {
+	z-index: -1000;
 }
