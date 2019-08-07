@@ -58,21 +58,21 @@
 			img: allSpriteImg,
 			context: bgContext,
 			imgPos: {
-				x: 0,
-				y: 264,
+				x: 100,
+				y: 364,
 				width: 100,
 				height: 100
 			},
       draw,
     }
 
-    for(let row = 0; row < container.height / 100; row++) {
-      for(let column = 0; column < container.width / 100; column++) {
+    for(let row = 0; row < container.height / bg.imgPos.height; row++) {
+      for(let column = 0; column < container.width / bg.imgPos.width; column++) {
         bg.rect = {
-          x: column * 100,
-          y: row * 100,
-          width: 100,
-          height: 100
+          x: column * bg.imgPos.height,
+          y: row * bg.imgPos.width,
+          width: bg.imgPos.height,
+          height: bg.imgPos.height
         }
         bg.draw()
       }
@@ -123,46 +123,56 @@
         this.rect = { ...this.rect, x, y }
       }
     }
-    let hero = {
-			img: heroImg,
-			context,
-			imgPos: {
-				x: 0,
+
+    function Hero (img, context, rect) {
+      this.img = img
+      this.context = context
+      this.rect = rect
+      this.step = 10
+      this.imgPos = {
+        x: 0,
 				y: 0,
 				width: 32,
 				height: 32
-			},
-			rect: {
-				x: 0,
-				y: 0,
-				width: 40,
-				height: 40
-			},
-      draw,
-      step: 10,
-      action
+      }
     }
+    Hero.prototype.draw = draw
+    Hero.prototype.action = action
 
-    const monster = {
-			img: allSpriteImg,
-			context,
-			imgPos: {
-				x: 858,
+    function Monster (img, context, rect) {
+      this.img = img
+      this.context = context
+      this.rect = rect
+      this.imgPos = {
+        x: 858,
 				y: 529,
 				width: 32,
 				height: 32
-			},
-			rect: {
-				x: 100,
-				y: 100,
-				width: 30,
-				height: 30
-			},
-      draw
+      }
     }
+    Monster.prototype.draw = draw
 
+    const monster1 = new Monster(allSpriteImg, context, {
+      x: 100,
+      y: 100,
+      width: 30,
+      height: 30
+    })
+    const monster2 = new Monster(allSpriteImg, context, {
+      x: 200,
+      y: 200,
+      width: 30,
+      height: 30
+    })
+    const hero = new Hero(heroImg, context, {
+      x: 0,
+      y: 0,
+      width: 32,
+      height: 32
+    })
     hero.draw()
-    monster.draw()
+    monster1.draw()
+    monster2.draw()
 
     // Control role behavior: Top, Right, Down, Left
     window.addEventListener('keydown', evt => {
@@ -175,7 +185,7 @@
       const actionName = KEY_ACTION_MAPPER[evt.keyCode]
       if (actionName) {
         context.clearRect(hero.rect.x, hero.rect.y, hero.rect.height, hero.rect.width)
-        hero.action(actionName, [monster.rect])
+        hero.action(actionName, [monster1.rect, monster2.rect])
         hero.draw()
       }
     })

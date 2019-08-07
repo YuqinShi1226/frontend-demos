@@ -8,3 +8,7 @@ A classic rgb game.
   - this
   - scope chain
   - oop
+- 0805
+  - prototype based inheritance
+  - constructor based inheritance
+  - prototype + constructor inheritance
