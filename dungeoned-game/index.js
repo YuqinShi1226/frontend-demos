@@ -77,17 +77,30 @@
         bg.draw()
       }
     }
-
+    /**
+     * Check if a number is between a given range
+     * @param {Number} num Number need evaluation
+     * @param {Number} min Minimum value of the range
+     * @param {Number} max Maximum value of the range 
+     * @returns {Boolean} check if num is in range
+     */ 
     const inRange = (num, min, max) => num >= min && num <=max
-    const notInArea = (item, area) => {
-      const { x, y, width, height } = item
-      const areaX = area.x
-      const areaY = area.y
-      const areaWidth = area.width
-      const areaHeight = area.height
-      const xNotInArea = (x >= areaX + areaWidth) || (x + width) <= areaX
-      const yNotInArea = (y >= areaY + areaHeight) || (y + height) <= areaY
-      return xNotInArea || yNotInArea
+    
+    /**
+     * Check if 2 area is overlapped. if they are not overlapped, return true, otherwise, return false
+     * @param {Object} area1 should contain x, y, width and height properties
+     * @param {Object} area2 same as area1
+     * @returns {Boolean}
+     */
+    const isOverlapped = (area1, area2) => {
+      const { x, y, width, height } = area1
+      const areaX = area2.x
+      const areaY = area2.y
+      const areaWidth = area2.width
+      const areaHeight = area2.height
+      const xNotOverlapped = (x >= areaX + areaWidth) || (x + width) <= areaX
+      const yNotOverlapped = (y >= areaY + areaHeight) || (y + height) <= areaY
+      return !(xNotOverlapped || yNotOverlapped)
     }
 
     function action (actionName, blockedAreas = []) {
@@ -117,53 +130,87 @@
           break
       }
       const shouldMove = blockedAreas.reduce((result, area) => {
-        return notInArea({ ...this.rect, x, y }, area) && result
+        return !isOverlapped({ ...this.rect, x, y }, area) && result
       }, true)
       if (shouldMove) {
         this.rect = { ...this.rect, x, y }
       }
     }
 
-    function Hero (img, context, rect) {
-      this.img = img
-      this.context = context
-      this.rect = rect
-      this.step = 10
-      this.imgPos = {
-        x: 0,
-				y: 0,
-				width: 32,
-				height: 32
+    class Hero {
+      constructor (img, context, rect) {
+        this.img = img
+        this.context = context
+        this.rect = rect
+        this.step = 10
+        this.imgPos = {
+          x: 0,
+          y: 0,
+          width: 32,
+          height: 32
+        }
       }
     }
+
     Hero.prototype.draw = draw
     Hero.prototype.action = action
 
-    function Monster (img, context, rect) {
-      this.img = img
-      this.context = context
-      this.rect = rect
-      this.imgPos = {
-        x: 858,
-				y: 529,
-				width: 32,
-				height: 32
+    class Monster {
+      constructor ({ context, initPos, imgPos }) {
+        this.img = allSpriteImg
+        this.context = context
+        this.rect = {
+          x: initPos.x,
+          y: initPos.y,
+          width: 30,
+          height: 30
+        }
+        this.imgPos = {
+          x: imgPos.x,
+          y: imgPos.y,
+          width: 32,
+          height: 32
+        }
       }
     }
     Monster.prototype.draw = draw
 
-    const monster1 = new Monster(allSpriteImg, context, {
-      x: 100,
-      y: 100,
-      width: 30,
-      height: 30
+    const monster1 = new Monster({
+      context, 
+      initPos: {
+        x: 100,
+        y: 100
+      },
+      imgPos: {
+        x: 858,
+        y: 529
+      }
     })
-    const monster2 = new Monster(allSpriteImg, context, {
-      x: 200,
-      y: 200,
-      width: 30,
-      height: 30
+    const monster2 = new Monster({
+      context, 
+      initPos: {
+        x: 200,
+        y: 200
+      },
+      imgPos: {
+        x: 858,
+        y: 529
+      }
     })
+    const redMonster = new Monster({
+      context, 
+      initPos: {
+        x: 200,
+        y: 250
+      },
+      imgPos: {
+        x: 858,
+        y: 497,
+        width: 32,
+        height: 32
+      }
+    })
+
     const hero = new Hero(heroImg, context, {
       x: 0,
       y: 0,
@@ -173,8 +220,9 @@
     hero.draw()
     monster1.draw()
     monster2.draw()
+    redMonster.draw()
 
-    // Control role behavior: Top, Right, Down, Left
+    // Control hero behavior: Top, Right, Down, Left
     window.addEventListener('keydown', evt => {
       const KEY_ACTION_MAPPER = {
         37: 'left',
@@ -185,11 +233,12 @@
       const actionName = KEY_ACTION_MAPPER[evt.keyCode]
       if (actionName) {
         context.clearRect(hero.rect.x, hero.rect.y, hero.rect.height, hero.rect.width)
-        hero.action(actionName, [monster1.rect, monster2.rect])
+        hero.action(actionName, [monster1.rect, monster2.rect, redMonster.rect])
         hero.draw()
       }
     })
   }
+
   const resourceManager = prepare()
   resourceManager.getResource(function (context, heroImg, allSpriteImg) {
     drawCharacter(context, heroImg, allSpriteImg)
