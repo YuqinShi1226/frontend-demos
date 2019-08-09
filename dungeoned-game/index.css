@@ -11,6 +11,10 @@ canvas {
 	height: 300px;
 }
 
+#summary {
+	margin-top: 310px;
+}
+
 #background {
 	z-index: -1000;
 }

@@ -106,7 +106,6 @@
     function action (actionName, monsters = []) {
       const { step, rect, imgPos } = this
       let { x, y } = rect
-      const blockedAreas = monsters.map(m => m.rect)
       switch (actionName) {
         case 'left':
           if (inRange(x, step, container.width)) {
@@ -173,8 +172,9 @@
       attack (monster) {
         const { volume } = monster
         const { _attackVolume, _bloodVolume } = volume
+        const attackedBloodVolume = this.volume._bloodVolume - _attackVolume
         if (this.volume._bloodVolume > 0 && _bloodVolume > 0) {
-          this.volume._bloodVolume -= _attackVolume
+          this.volume._bloodVolume = Math.max(attackedBloodVolume, 0)
         }
       }
     }
@@ -237,6 +237,39 @@
       }
     }
 
+    class Summary {
+      constructor (hero, monster, redMonster) {
+        this.hero = hero
+        this.monster = monster
+        this.redMonster = redMonster
+      }
+      html () {
+        const elem = document.getElementById('summary')
+        elem.innerHTML = `
+          <ul>
+            <li>Hero:
+              <span style="color: red">${this.hero.volume._bloodVolume === 0 ? 'Dead' : 'Alive'}</span>
+              <ul>
+                <li>Blood: ${this.hero.volume._bloodVolume}</li>
+                <li>Attack: ${this.hero.volume._attackVolume}</li>
+              </ul>
+            </li>
+            <li>Black Monster:
+              <ul>
+                <li>Blood: ${this.monster.volume._bloodVolume}</li>
+                <li>Attack: ${this.monster.volume._attackVolume}</li>
+              </ul>
+            </li>
+            <li>Red Monster:
+              <ul>
+                <li>Blood: ${this.redMonster.volume._bloodVolume}</li>
+                <li>Attack: ${this.redMonster.volume._attackVolume}</li>
+              </ul>
+            </li>
+          </ul>
+        `
+      }
+    }
     const monster1 = new Monster({
       context,
       initPos: {
@@ -262,6 +295,9 @@
     monster1.draw()
     redMonster.draw()
 
+    const gameSummary = new Summary(hero, monster1, redMonster)
+    gameSummary.html()
+
     // Control hero behavior: Top, Right, Down, Left
     window.addEventListener('keydown', evt => {
       const KEY_ACTION_MAPPER = {
@@ -276,6 +312,7 @@
         hero.action(actionName, [monster1, redMonster])
         hero.draw()
       }
+      gameSummary.html()
     })
   }
 
