@@ -50,7 +50,7 @@
 					this.rect.y,
 					this.rect.width,
 					this.rect.height
-				)
+        )
     }
 
     const bgContext = document.getElementById('background').getContext('2d')
@@ -81,11 +81,11 @@
      * Check if a number is between a given range
      * @param {Number} num Number need evaluation
      * @param {Number} min Minimum value of the range
-     * @param {Number} max Maximum value of the range 
+     * @param {Number} max Maximum value of the range
      * @returns {Boolean} check if num is in range
-     */ 
+     */
     const inRange = (num, min, max) => num >= min && num <=max
-    
+
     /**
      * Check if 2 area is overlapped. if they are not overlapped, return true, otherwise, return false
      * @param {Object} area1 should contain x, y, width and height properties
@@ -103,10 +103,10 @@
       return !(xNotOverlapped || yNotOverlapped)
     }
 
-    function action (actionName, blockedAreas = []) {
+    function action (actionName, monsters = []) {
       const { step, rect, imgPos } = this
       let { x, y } = rect
-
+      const blockedAreas = monsters.map(m => m.rect)
       switch (actionName) {
         case 'left':
           if (inRange(x, step, container.width)) {
@@ -129,14 +129,21 @@
           }
           break
       }
-      const shouldMove = blockedAreas.reduce((result, area) => {
-        return !isOverlapped({ ...this.rect, x, y }, area) && result
-      }, true)
+      let shouldMove = true
+      monsters.forEach(m => {
+        if (isOverlapped({ ...this.rect, x, y }, m.rect)) {
+          shouldMove = false
+          hero.attack(m)
+          m.attacked(hero)
+          m.redraw()
+        }
+      })
       if (shouldMove) {
         this.rect = { ...this.rect, x, y }
       }
     }
 
+    const TEXT_HEIGHT = 10
     class Hero {
       constructor (img, context, rect) {
         this.img = img
@@ -149,14 +156,33 @@
           width: 32,
           height: 32
         }
+        this.volume = {
+          _bloodVolume: 1000,
+          _attackVolume: 10
+        }
+      }
+      clear () {
+        this.context.clearRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height + TEXT_HEIGHT)
+      }
+      draw () {
+        draw.call(this)
+        this.context.font = '14px Arial'
+        this.context.fillStyle = 'red'
+        this.context.fillText(this.volume._bloodVolume, this.rect.x, this.rect.y + this.rect.height + TEXT_HEIGHT)
+      }
+      attack (monster) {
+        const { volume } = monster
+        const { _attackVolume, _bloodVolume } = volume
+        if (this.volume._bloodVolume > 0 && _bloodVolume > 0) {
+          this.volume._bloodVolume -= _attackVolume
+        }
       }
     }
 
-    Hero.prototype.draw = draw
     Hero.prototype.action = action
 
     class Monster {
-      constructor ({ context, initPos, imgPos }) {
+      constructor ({ context, initPos }) {
         this.img = allSpriteImg
         this.context = context
         this.rect = {
@@ -166,48 +192,63 @@
           height: 30
         }
         this.imgPos = {
-          x: imgPos.x,
-          y: imgPos.y,
+          x: 858,
+          y: 529,
           width: 32,
           height: 32
         }
+        this.volume = {
+          _bloodVolume: 200,
+          _attackVolume: 30
+        }
+      }
+      redraw () {
+        this.context.clearRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height + TEXT_HEIGHT)
+        this.draw()
+      }
+      draw () {
+        draw.call(this)
+        this.context.font = '14px Arial'
+        this.context.fillStyle = 'red'
+        this.context.fillText(this.volume._bloodVolume, this.rect.x, this.rect.y + this.rect.height + TEXT_HEIGHT)
+      }
+      attacked (hero) {
+        const { volume } = hero
+        const { _attackVolume, _bloodVolume } = volume
+        if (this.volume._bloodVolume > 0 && _bloodVolume > 0) {
+          this.volume._bloodVolume -= _attackVolume
+        }
       }
     }
-    Monster.prototype.draw = draw
+
+    class RedMonster extends Monster {
+      constructor ({ context, initPos }) {
+        super({ context, initPos })
+        this.imgPos = {
+          x: 858,
+          y: 497,
+          width: 32,
+          height: 32
+        }
+        this.volume = {
+          _bloodVolume: 500,
+          _attackVolume: 50
+        }
+      }
+    }
 
     const monster1 = new Monster({
-      context, 
+      context,
       initPos: {
         x: 100,
         y: 100
-      },
-      imgPos: {
-        x: 858,
-        y: 529
       }
     })
-    const monster2 = new Monster({
-      context, 
+    const redMonster = new RedMonster({
+      context,
       initPos: {
         x: 200,
         y: 200
-      },
-      imgPos: {
-        x: 858,
-        y: 529
-      }
-    })
-    const redMonster = new Monster({
-      context, 
-      initPos: {
-        x: 200,
-        y: 250
-      },
-      imgPos: {
-        x: 858,
-        y: 497,
-        width: 32,
-        height: 32
       }
     })
 
@@ -219,7 +260,6 @@
     })
     hero.draw()
     monster1.draw()
-    monster2.draw()
     redMonster.draw()
 
     // Control hero behavior: Top, Right, Down, Left
@@ -232,8 +272,8 @@
       }
       const actionName = KEY_ACTION_MAPPER[evt.keyCode]
       if (actionName) {
-        context.clearRect(hero.rect.x, hero.rect.y, hero.rect.height, hero.rect.width)
-        hero.action(actionName, [monster1.rect, monster2.rect, redMonster.rect])
+        hero.clear()
+        hero.action(actionName, [monster1, redMonster])
         hero.draw()
       }
     })
