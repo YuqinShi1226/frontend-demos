@@ -18,6 +18,7 @@ app.route('/', function (req, res) {
 });
 
 app.route('/list', function (req, res) {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" })
     res.send(JSON.stringify(mockData));
 });
 

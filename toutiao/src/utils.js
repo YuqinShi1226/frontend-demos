@@ -2,6 +2,7 @@
  * @file utils
  * @author Yuqin
  */
+import mock from '../../server/mock.json'
 
  /**
   * @description Network request utils
@@ -9,12 +10,11 @@
   * @returns {Promise} request promise task
   */
  export const request = params => {
-  // params.methods
   let requestParams = {
     ...params,
     method: params.method && params.method.toUpperCase() || 'GET'
   }
-
-  return fetch(requestParams.url, requestParams)
-    .then(res => res.json())
+  return Promise.resolve(mock)
+  // return fetch(requestParams.url, requestParams)
+  //   .then(res => res.json())
  }

@@ -44,7 +44,6 @@ module.exports = {
             app.route(new RegExp(dir), function (req, res) {
                 var pathObj = url.parse(req.url, true);
                 var staticDir = path.resolve(base || __dirname);
-                //获取资源文件绝对路径
                 var filePath = path.join(staticDir, pathObj.pathname);
                 if (!fs.existsSync(filePath)) {
                     res.write('404');
