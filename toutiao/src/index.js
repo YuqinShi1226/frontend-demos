@@ -21,7 +21,6 @@ class Manager {
       items.forEach(item => {
         const componentName = item.type.replace(/^\w/g, w => w.toUpperCase())
         const Component = components[componentName]
-        
         const currentComponent = new Component(item)
         const componentElement = currentComponent.constructElement()
         this.$container.appendChild(componentElement)
