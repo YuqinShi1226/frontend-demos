@@ -23,6 +23,16 @@
             }
         },
         {
+            "type": "largePic",
+            "data": {
+                "articleUrl": "http://toutiao.com/group/6722318694157910535/",
+                "title": "看看可爱的猫咪",
+                "imageList": [
+                    "http://p1-tt.byteimg.com/list/pgc-image/a6f8aa6f2333469a847b9dfe117f3e07"
+                ]
+            }
+        },
+        {
             "type": "multiplePic",
             "data": {
                 "articleUrl": "http://m.ce.cn/ttt/201907/10/t20190710_32584185.shtml",
