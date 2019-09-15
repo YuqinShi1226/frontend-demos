@@ -14,6 +14,7 @@
 </template>
 <script>
 export default {
+    name: 'mpic',
     props: {
       title: {
         type: String,

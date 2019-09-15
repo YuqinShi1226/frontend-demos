@@ -10,6 +10,7 @@
         {{tab.label}}
       </span>
     </div>
+    <!-- <router-link>ss</router-link> -->
     <a class="more_btn" v-on:click.prevent="$emit('more')">
       <span class="cross"></span>
     </a>
@@ -18,6 +19,7 @@
 
 <script>
 export default {
+  name: 'custom-head',
   props: ['tabs']
 }
 </script>

@@ -11,6 +11,7 @@
  * @author Yuqin
  */
 export default {
+    name: 'video',
     props: ['title', 'avatar']
 }
 </script>

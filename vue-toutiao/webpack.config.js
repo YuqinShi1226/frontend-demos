@@ -84,6 +84,13 @@ module.exports = {
                     ]
                 }));
             });
+
+            app.get('/page/*', function (req, res) {
+                res.setHeader('Content-Type', 'text/html;charset=utf-8');
+                fs.readFile('./dist/index.html', function (err, content) {
+                   res.send(content);
+                });
+            });
         }
     }
 };

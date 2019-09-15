@@ -19,6 +19,7 @@
 <script>
 
 export default {
+    name: 'agrpic',
     props: {
       title: {
         type: String,

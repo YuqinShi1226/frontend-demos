@@ -20,7 +20,6 @@
     </keep-alive>
   </article>
 </template>
-
 <script>
 /**
  * Constant
@@ -60,6 +59,7 @@ const constructTabs = tabs => {
 }
 
 export default {
+  name: 'main-app',
   data () {
     return {
       list: [],
@@ -71,7 +71,7 @@ export default {
   components: {
     ...convertModule2Obj(Pics),
     Tab,
-    Loading,
+    Loading, 
     Setting
   },
   methods: {

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Souece code implementation </title>
+    </head>
+    <body>
+        <div id="app"></div>
+        <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+        <script type="text/javascript">
+           const api = {
+                replaceChild (element, oldElement) {
+                    
+                    return oldElement.parentElement.replaceChild(element, oldElement)
+                }
+            }
+            
+
+            class Watcher {
+                constructor (getter, callback) {
+                    this.callback = callback
+                    this.getter = getter
+                    this.value = this.get()
+                }
+
+                get () {
+                    // record 
+                    // window.watcher = this
+                    pushTarget(this)
+                    let value = this.getter()
+                    popTarget()
+                    return value
+                }
+                addDep (dep) {
+                    dep.addSub(this)
+                }
+                update () {
+                    let newVal = this.get()
+                    this.val = newVal
+                }
+            }
+
+          
+           
+            class Observer {
+                constructor (obj) {
+                    this.walk(obj)
+                }
+
+                walk (obj) {
+                    Object
+                        .keys(obj)
+                        .forEach(key => {
+                            if (typeof obj[key] === 'object') {
+                                this.walk(obj[key])
+                            }
+                            defineReactive(obj, key, obj[key])
+                        })
+                    return obj
+                }
+            }
+
+            class Dep {
+                constructor () {
+                    this.subs = []
+                }
+                notify () {
+                    const subs = this.subs.slice()
+                    for (let i = 0, len = this.subs.length; i < len; i++) {
+                        this.subs[i].update()
+                    }
+                }
+                addSub (sub) {
+                    if (this.subs.indexOf(sub) === -1) {
+                        this.subs.push(sub)
+                    }
+                }
+                addDepend () {
+                    Dep.targets[Dep.targets.length - 1].addDep(this)
+                }
+            }
+
+            Dep.targets = []
+            function pushTarget (instance) {
+                Dep.targets.push(instance) 
+            }
+
+            function popTarget (instance) {
+                return Dep.targets.pop()
+            }
+
+            function proxy (target, data, key) {
+                Object.defineProperty(target, key, {
+                    get () {
+                        return data[key]
+                    },
+                    set(newVal) {
+                        console.log('set..')
+                        data[key] = newVal
+                    }
+                })
+            }
+
+
+            function defineReactive (target, key, value, updateCb) {
+                const dep = new Dep()
+                Object.defineProperty(target, key, {
+                    get () {
+                        if (Dep.targets.length > 0) {
+                            dep.addDepend()
+                        }
+                        return value
+                    },
+                    set (newVal) {
+                        // 通知刷新
+                        value = newVal
+                        dep.notify()
+                    }
+                })
+            }
+
+           
+
+
+            class Vue {
+                constructor (options) {
+                    const { el, data, render } = options
+                    this.$el = document.querySelector(el)
+                    this._data = data && data()
+                    new Observer(this._data)
+                    this.render = render
+                    for (let key in this._data) {
+                        proxy(this, this._data, key)
+                    }
+
+                    new Watcher(() => {
+                        this._update()
+                    }, () => {
+                        console.log('callback')
+                    })
+                }
+
+                _createElement (tagName, data, children) {
+                    const tag = document.createElement(tagName)
+                    const { attrs = {} } = data
+                    for (let attrName in attrs) {
+                        tag.setAttribute(attrName, attrs[attrName])
+                    }
+                    if (Object.prototype.toString
+                        .call(children) !== '[object Array]'
+                    ) {
+                        let child = document.createTextNode(children)
+                        tag.appendChild(child)
+                    } else  {
+                        children.forEach(child => {
+                            tag.appendChild(child)
+                        })
+                    }
+                    return tag
+                }
+
+                _update () {
+                    const $root = this.render(this._createElement)
+                    console.log($root)
+                    api.replaceChild($root, this.$el)
+                    this.$el = $root
+                }
+            }
+
+            window.app = new Vue({
+                el: '#app',
+                data () {
+                    return {
+                        price: '29',
+                        infos: {
+                            title: 'Test title',
+                            placeholder: 'Please input'
+                        }
+                    }
+                },
+                render (createElement) {
+                    return createElement(
+                        'div', 
+                        {
+                            attrs: {
+                                title: ''
+                            }
+                        }, 
+                        [
+                            createElement(
+                                'span',
+                                {},
+                                this.price
+                            )
+                        ]
+                    )
+                }
+            })
+        </script>
+    </body>
+</html>

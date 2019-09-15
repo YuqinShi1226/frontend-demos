@@ -1,11 +1,9 @@
 <template>
-    <div>
-        加载中...
-    </div>
+  <span> 这是Video {{ vid }}</span>
 </template>
 
 <script>
 export default {
-    name: 'loading'
+    props: ['vid']
 }
 </script>

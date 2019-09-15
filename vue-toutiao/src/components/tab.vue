@@ -1,7 +1,5 @@
 <template>
     <div>
-        <!--v-on:select="$emit('switchTab', $event)"-->
-        <!--v-on:select="$emit('input', $event)"-->
         <nav-head
             v-on:select="$emit('update:curTab', $event)"
             v-on:more="$emit('more')"
@@ -28,6 +26,7 @@
 import Head from './head.vue';
 
 export default {
+    name: 'custom-tab',
     components: {
         'nav-head': Head
     },
